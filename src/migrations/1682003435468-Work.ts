@@ -60,7 +60,6 @@ export class Work1682003435468 implements MigrationInterface {
             name: 'email',
             type: 'varchar',
             length: '256',
-            isUnique: true,
           },
           {
             name: 'phone',

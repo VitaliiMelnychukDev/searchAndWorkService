@@ -3,9 +3,15 @@ import {
   AccountMessage,
   CityMessage,
   CategoryMessage,
+  WorkMessage,
 } from './message';
 
-type Message = AccountMessage | AuthMessage | CityMessage | CategoryMessage;
+type Message =
+  | AccountMessage
+  | AuthMessage
+  | CityMessage
+  | CategoryMessage
+  | WorkMessage;
 
 export interface IResponseNoData {
   success?: boolean;

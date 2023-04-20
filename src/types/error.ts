@@ -30,6 +30,26 @@ export enum CategoryError {
   CategoryAlreadyExist = 'CategoryAlreadyExist',
 }
 
+export enum CompanyError {
+  CreateCompanyFail = 'CreateCompanyFail',
+  UpdateCompanyFail = 'UpdateCompanyFail',
+  GetCompanyFail = 'GetCompanyFail',
+  CompanyDoesNotExist = 'CompanyDoesNotExist',
+  CompanyWithEmailAlreadyExists = 'CompanyWithEmailAlreadyExists',
+}
+
+export enum WorkError {
+  CreateWorkFail = 'CreateWorkFail',
+  UpdateWorkFail = 'UpdateWorkFail',
+  GetWorkFail = 'GetWorkFail',
+  WorkDoesNotExist = 'WorkDoesNotExist',
+  CityDoesNotExist = 'CityDoesNotExist',
+  CompanyDoesNotExist = 'CompanyDoesNotExist',
+  CategoryDoesNotExist = 'CategoryDoesNotExist',
+  WorkErrorOccurred = 'WorkErrorOccurred',
+  DeleteWorkFail = 'DeleteWorkFail',
+}
+
 export enum TokenError {
   TokenIsNotValid = 'TokenIsNotValid',
 }

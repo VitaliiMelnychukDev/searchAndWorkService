@@ -8,6 +8,10 @@ export const enum CityMessage {
   CitySuccessfullyRemoved = 'CitySuccessfullyRemoved',
 }
 
+export const enum WorkMessage {
+  WorkSuccessfullyRemoved = 'WorkSuccessfullyRemoved',
+}
+
 export const enum CategoryMessage {
   CategorySuccessfullyRemoved = 'CategorySuccessfullyRemoved',
 }

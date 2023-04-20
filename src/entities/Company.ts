@@ -17,7 +17,7 @@ export class Company {
   accountId: number;
 
   @Column({ type: 'varchar', length: 256 })
-  name: string;
+  title: string;
 
   @Column({ type: 'varchar', length: 1024 })
   description: string;

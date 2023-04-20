@@ -20,13 +20,23 @@ import { CityController } from './controllers/city.controller';
 import { CityService } from './services/city.service';
 import { CategoryService } from './services/category.service';
 import { CategoryController } from './controllers/category.controller';
+import { CompanyController } from './controllers/company.controller';
+import { CompanyService } from './services/company.service';
+import { WorkService } from './services/work.service';
+import { WorkController } from './controllers/work.controller';
 
 @Module({
   imports: [
     TypeOrmModule.forFeature([Account, Token, Category, City, Company, Work]),
     TypeOrmModule.forRoot(dataSourceOptions),
   ],
-  controllers: [AuthController, CityController, CategoryController],
+  controllers: [
+    AuthController,
+    CityController,
+    CategoryController,
+    CompanyController,
+    WorkController,
+  ],
   providers: [
     {
       provide: APP_GUARD,
@@ -43,6 +53,8 @@ import { CategoryController } from './controllers/category.controller';
     PaginationService,
     CityService,
     CategoryService,
+    CompanyService,
+    WorkService,
   ],
 })
 export class AppModule {}
