@@ -24,6 +24,7 @@ import { CompanyController } from './controllers/company.controller';
 import { CompanyService } from './services/company.service';
 import { WorkService } from './services/work.service';
 import { WorkController } from './controllers/work.controller';
+import { AccountController } from './controllers/account.controller';
 
 @Module({
   imports: [
@@ -36,6 +37,7 @@ import { WorkController } from './controllers/work.controller';
     CategoryController,
     CompanyController,
     WorkController,
+    AccountController,
   ],
   providers: [
     {

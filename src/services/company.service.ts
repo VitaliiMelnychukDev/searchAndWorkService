@@ -23,8 +23,8 @@ export class CompanyService {
     private paginationService: PaginationService,
   ) {}
 
-  async get(companyId: number): Promise<Company> {
-    return await this.getCompany(companyId);
+  async get(companyId: number, tokenPayload: ITokenPayload): Promise<Company> {
+    return await this.getCompany(companyId, tokenPayload);
   }
 
   async getCompanies(

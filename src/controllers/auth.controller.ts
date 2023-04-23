@@ -3,7 +3,7 @@ import { AccountService } from '../services/account.service';
 import { IResponse, IResponseNoData } from '../types/general';
 import { LoginDto } from '../dtos/auth/login.dto';
 import { AuthService } from '../services/auth.service';
-import { ITokens } from '../types/token';
+import { ILogin, ITokens } from '../types/token';
 import { AuthMessage, AccountMessage } from '../types/message';
 import { ValidateDto } from '../dtos/auth/validate.dto';
 import { IValidate } from '../types/auth';
@@ -43,10 +43,11 @@ export class AuthController {
   @Post('/login')
   async login(
     @Body(new ValidationPipe()) loginBody: LoginDto,
-  ): Promise<IResponse<ITokens>> {
+  ): Promise<IResponse<ILogin>> {
     const tokens = await this.authService.login(loginBody);
 
     return {
+      success: true,
       data: tokens,
     };
   }

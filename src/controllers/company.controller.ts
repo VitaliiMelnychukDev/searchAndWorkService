@@ -81,8 +81,13 @@ export class CompanyController {
   }
 
   @Get(':id')
-  async get(@Param('id') id: number): Promise<IResponse<Company>> {
-    const company = await this.companyService.get(id);
+  @AuthNeeded()
+  @Roles(AccountRole.Company)
+  async get(
+    @Param('id') id: number,
+    @Req() request: IAuthorizedRequest,
+  ): Promise<IResponse<Company>> {
+    const company = await this.companyService.get(id, request.account);
 
     return {
       success: true,

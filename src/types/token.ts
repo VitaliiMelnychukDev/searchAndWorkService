@@ -11,3 +11,7 @@ export type ITokenPayload = {
   role: AccountRole;
   name: string;
 };
+
+export type ILogin = ITokens & {
+  user: ITokenPayload;
+};

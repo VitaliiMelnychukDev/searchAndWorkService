@@ -96,6 +96,10 @@ export class WorkService {
       const [result, total] = await this.workRepository.findAndCount({
         ...this.paginationService.getPaginationParams(searchData),
         where: whereOptions,
+        order: {
+          expireAt: 'DESC',
+        },
+        relations: ['company', 'category', 'city'],
       });
 
       return {
@@ -223,6 +227,7 @@ export class WorkService {
       where: {
         id: workId,
       },
+      relations: ['company', 'category', 'city'],
     });
 
     if (!work || work.removed) {

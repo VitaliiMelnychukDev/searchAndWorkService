@@ -3,7 +3,7 @@ import { HashService } from './hash.service';
 import { AuthError } from '../types/error';
 import { LoginDto } from '../dtos/auth/login.dto';
 import { Token } from '../entities/Token';
-import { ITokenPayload, ITokens } from '../types/token';
+import { ILogin, ITokenPayload, ITokens } from '../types/token';
 import { TokenService } from './token.service';
 import { Repository } from 'typeorm';
 import {
@@ -24,7 +24,7 @@ export class AuthService {
     private tokenService: TokenService,
   ) {}
 
-  async login(loginData: LoginDto): Promise<ITokens> {
+  async login(loginData: LoginDto): Promise<ILogin> {
     let account: Account | null = null;
 
     try {
@@ -49,7 +49,12 @@ export class AuthService {
     }
 
     try {
-      return await this.generateTokens(account);
+      const tokens = await this.generateTokens(account);
+
+      return {
+        ...tokens,
+        user: this.tokenService.verifyAndGetAccessTokenData(tokens.accessToken),
+      };
     } catch (e) {
       throw new UnauthorizedException(AuthError.LoginAccountFail);
     }
