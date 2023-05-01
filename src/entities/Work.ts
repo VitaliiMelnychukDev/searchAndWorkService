@@ -1,7 +1,14 @@
-import { Column, Entity, ManyToOne, PrimaryGeneratedColumn } from 'typeorm';
-import { Company } from './Company';
+import {
+  Column,
+  Entity,
+  ManyToOne,
+  OneToMany,
+  PrimaryGeneratedColumn,
+} from 'typeorm';
 import { Category } from './Category';
 import { City } from './City';
+import { Account } from './Account';
+import { AccountWork } from './AccountWork';
 
 @Entity('works')
 export class Work {
@@ -9,13 +16,16 @@ export class Work {
   id: number;
 
   @Column({ type: 'int' })
-  companyId: number;
+  accountId: number;
 
   @Column({ type: 'int' })
   categoryId: number;
 
   @Column({ type: 'int' })
   cityId: number;
+
+  @Column({ type: 'varchar', length: 256 })
+  address: string;
 
   @Column({ type: 'float' })
   payment: number;
@@ -36,7 +46,13 @@ export class Work {
   createdAt: number;
 
   @Column({ type: 'int' })
-  expireAt: number;
+  startTime: number;
+
+  @Column({ type: 'int' })
+  endTime: number;
+
+  @Column({ type: 'int' })
+  countWorkers: number;
 
   @Column({ type: 'boolean', default: false })
   blocked: boolean;
@@ -47,12 +63,15 @@ export class Work {
   @Column({ type: 'boolean', default: false })
   removed: boolean;
 
-  @ManyToOne(() => Company, (company) => company.works)
-  company?: Company;
-
   @ManyToOne(() => Category, (category) => category.works)
   category?: Category;
 
   @ManyToOne(() => City, (city) => city.works)
   city?: City;
+
+  @ManyToOne(() => Account, (account) => account.works)
+  account: Account;
+
+  @OneToMany(() => AccountWork, (accountWork) => accountWork.work)
+  accountWorks: AccountWork[];
 }

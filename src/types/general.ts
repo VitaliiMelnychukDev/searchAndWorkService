@@ -4,6 +4,8 @@ import {
   CityMessage,
   CategoryMessage,
   WorkMessage,
+  AccountCategoryMessage,
+  AccountHourMessage,
 } from './message';
 
 type Message =
@@ -11,7 +13,9 @@ type Message =
   | AuthMessage
   | CityMessage
   | CategoryMessage
-  | WorkMessage;
+  | WorkMessage
+  | AccountCategoryMessage
+  | AccountHourMessage;
 
 export interface IResponseNoData {
   success?: boolean;

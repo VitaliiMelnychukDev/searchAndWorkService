@@ -1,12 +1,12 @@
 import { MigrationInterface, QueryRunner, Table } from 'typeorm';
 
-export class City1682002849806 implements MigrationInterface {
-  public static tableName = 'cities';
+export class Category1682778069019 implements MigrationInterface {
+  public static tableName = 'categories';
 
   public async up(queryRunner: QueryRunner): Promise<void> {
     await queryRunner.createTable(
       new Table({
-        name: City1682002849806.tableName,
+        name: Category1682778069019.tableName,
         columns: [
           {
             name: 'id',
@@ -27,6 +27,6 @@ export class City1682002849806 implements MigrationInterface {
   }
 
   public async down(queryRunner: QueryRunner): Promise<void> {
-    await queryRunner.dropTable(City1682002849806.tableName);
+    await queryRunner.dropTable(Category1682778069019.tableName);
   }
 }

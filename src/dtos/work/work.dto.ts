@@ -1,14 +1,15 @@
 import { IsEmail, IsNumber, IsOptional, Length, IsInt } from 'class-validator';
+import { Type } from 'class-transformer';
 
 export class WorkDto {
-  @IsInt()
-  companyId: number;
-
   @IsInt()
   categoryId: number;
 
   @IsInt()
   cityId: number;
+
+  @Length(2, 256)
+  address: string;
 
   @IsNumber()
   payment: number;
@@ -25,4 +26,16 @@ export class WorkDto {
   @IsOptional()
   @Length(8, 20)
   phone: string;
+
+  @Type(() => Number)
+  @IsNumber()
+  startTime: number;
+
+  @Type(() => Number)
+  @IsNumber()
+  endTime: number;
+
+  @Type(() => Number)
+  @IsNumber()
+  countWorkers: number;
 }

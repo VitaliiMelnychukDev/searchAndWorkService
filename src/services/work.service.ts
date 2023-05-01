@@ -5,8 +5,7 @@ import {
   UnauthorizedException,
 } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Company } from '../entities/Company';
-import { FindOptionsWhere, In, Like, MoreThan, Repository } from 'typeorm';
+import { FindOptionsWhere, Like, MoreThan, Repository } from 'typeorm';
 import { PaginationService } from './pagination.service';
 import { ITokenPayload } from '../types/token';
 import { WorkError } from '../types/error';
@@ -15,17 +14,19 @@ import { WorkDto } from '../dtos/work/work.dto';
 import { City } from '../entities/City';
 import { Category } from '../entities/Category';
 import { SearchDto } from '../dtos/base/pagination.dto';
-import { SearchWork } from '../types/work';
+import { SearchWork, Worker } from '../types/work';
+import { Account } from '../entities/Account';
+import { AccountHelper } from '../helpers/account.helper';
+import { AccountHourType } from '../types/account';
 
 @Injectable()
 export class WorkService {
-  private readonly expirationDays = 10;
   constructor(
     @InjectRepository(Work)
     private readonly workRepository: Repository<Work>,
 
-    @InjectRepository(Company)
-    private readonly companyRepository: Repository<Company>,
+    @InjectRepository(Account)
+    private readonly accountRepository: Repository<Account>,
 
     @InjectRepository(City)
     private readonly cityRepository: Repository<City>,
@@ -36,29 +37,56 @@ export class WorkService {
     private paginationService: PaginationService,
   ) {}
 
-  async get(companyId: number): Promise<Work> {
-    return await this.getWork(companyId);
+  async searchWorkers(
+    workId: number,
+    tokenPayload: ITokenPayload,
+  ): Promise<Worker[]> {
+    const work = await this.getWork(workId, tokenPayload);
+
+    try {
+      const workers: Worker[] = await this.accountRepository
+        .createQueryBuilder('account')
+        .select('account.phone', 'phone')
+        .addSelect('account.email', 'email')
+        .addSelect('account.name', 'name')
+        .addSelect('workCategories.description', 'categoryDescription')
+        .innerJoin('account.workCategories', 'workCategories')
+        .innerJoin('account.hours', 'hours')
+        .where('workCategories.categoryId = :workCategoryId', {
+          workCategoryId: work.categoryId,
+        })
+        .andWhere('account.cityId = :accountCityId', {
+          accountCityId: work.cityId,
+        })
+        .andWhere('account.id != :accountId', {
+          accountId: work.accountId,
+        })
+        .andWhere('hours.startTime <= :workStartTime', {
+          workStartTime: work.startTime,
+        })
+        .andWhere('hours.endTime >= :workEndTime', {
+          workEndTime: work.endTime,
+        })
+        .andWhere('hours.type = :hourType', {
+          hourType: AccountHourType.Available,
+        })
+        .execute();
+
+      return workers;
+    } catch {
+      throw new BadRequestException(WorkError.SearchWorkersFail);
+    }
+  }
+
+  async get(id: number): Promise<Work> {
+    return await this.getWork(id);
   }
 
   async getOwnWorks(
     searchData: SearchDto,
     tokenPayload?: ITokenPayload,
   ): Promise<SearchWork> {
-    let companyIds: number[] = [];
-
-    try {
-      const companies = await this.companyRepository.find({
-        where: {
-          accountId: tokenPayload.accountId,
-        },
-      });
-
-      companyIds = companies.map((company) => company.id);
-    } catch {
-      throw new BadRequestException(WorkError.GetWorkFail);
-    }
-
-    return await this.searchWorks(searchData, companyIds);
+    return await this.searchWorks(searchData, tokenPayload.accountId);
   }
 
   async getWorks(searchData: SearchDto): Promise<SearchWork> {
@@ -67,17 +95,17 @@ export class WorkService {
 
   private async searchWorks(
     searchData: SearchDto,
-    companyIds: number[] = [],
+    accountId?: number,
   ): Promise<SearchWork> {
     try {
       let whereOptions: FindOptionsWhere<Work> | FindOptionsWhere<Work>[] = {
         removed: false,
       };
 
-      if (companyIds.length) {
-        whereOptions.companyId = In(companyIds);
+      if (accountId) {
+        whereOptions.accountId = accountId;
       } else {
-        whereOptions.expireAt = MoreThan(new Date().getTime());
+        whereOptions.endTime = MoreThan(new Date().getTime());
       }
 
       if (searchData.searchTerm) {
@@ -97,9 +125,15 @@ export class WorkService {
         ...this.paginationService.getPaginationParams(searchData),
         where: whereOptions,
         order: {
-          expireAt: 'DESC',
+          id: 'DESC',
         },
-        relations: ['company', 'category', 'city'],
+        relations: ['account', 'category', 'city'],
+      });
+
+      result.forEach((work) => {
+        work.account = AccountHelper.getAccountWithoutPassword(
+          work.account,
+        ) as Account;
       });
 
       return {
@@ -112,14 +146,11 @@ export class WorkService {
   }
 
   async create(workData: WorkDto, tokenPayload: ITokenPayload): Promise<Work> {
-    await this.validateWorkDto(
-      workData,
-      tokenPayload,
-      WorkError.CreateWorkFail,
-    );
+    await this.validateWorkDto(workData, WorkError.CreateWorkFail);
 
     const work = this.setWorkData(new Work(), workData);
     work.createdAt = new Date().getTime();
+    work.accountId = tokenPayload.accountId;
 
     try {
       return await this.workRepository.save(work);
@@ -133,11 +164,7 @@ export class WorkService {
     workId: number,
     tokenPayload: ITokenPayload,
   ): Promise<Work> {
-    await this.validateWorkDto(
-      workData,
-      tokenPayload,
-      WorkError.UpdateWorkFail,
-    );
+    await this.validateWorkDto(workData, WorkError.UpdateWorkFail);
 
     const work = await this.getWork(workId, tokenPayload);
 
@@ -163,9 +190,16 @@ export class WorkService {
 
   private async validateWorkDto(
     workData: WorkDto,
-    tokenPayload: ITokenPayload,
     error: WorkError,
   ): Promise<void> {
+    if (
+      workData.startTime <= new Date().getTime() ||
+      workData.endTime <= new Date().getTime() ||
+      workData.startTime >= workData.endTime
+    ) {
+      throw new BadRequestException(WorkError.SaveWorkFail);
+    }
+
     let city: City | null = null;
 
     try {
@@ -197,26 +231,6 @@ export class WorkService {
     if (!category) {
       throw new NotFoundException(WorkError.CategoryDoesNotExist);
     }
-
-    let company: Company | null = null;
-
-    try {
-      company = await this.companyRepository.findOne({
-        where: {
-          id: workData.companyId,
-        },
-      });
-    } catch {
-      throw new BadRequestException(error);
-    }
-
-    if (!company) {
-      throw new NotFoundException(WorkError.CompanyDoesNotExist);
-    }
-
-    if (company.accountId !== tokenPayload.accountId) {
-      throw new UnauthorizedException();
-    }
   }
 
   private async getWork(
@@ -227,33 +241,19 @@ export class WorkService {
       where: {
         id: workId,
       },
-      relations: ['company', 'category', 'city'],
+      relations: ['account', 'category', 'city'],
     });
+
+    work.account = AccountHelper.getAccountWithoutPassword(
+      work.account,
+    ) as Account;
 
     if (!work || work.removed) {
       throw new NotFoundException(WorkError.WorkDoesNotExist);
     }
 
-    if (tokenPayload) {
-      let company: Company | null = null;
-
-      try {
-        company = await this.companyRepository.findOne({
-          where: {
-            id: work.companyId,
-          },
-        });
-      } catch {
-        throw new BadRequestException(WorkError.WorkErrorOccurred);
-      }
-
-      if (!company) {
-        throw new NotFoundException(WorkError.CompanyDoesNotExist);
-      }
-
-      if (company.accountId !== tokenPayload.accountId) {
-        throw new UnauthorizedException();
-      }
+    if (tokenPayload && work.accountId !== tokenPayload.accountId) {
+      throw new UnauthorizedException();
     }
 
     return work;
@@ -265,12 +265,12 @@ export class WorkService {
     work.email = workData.email;
     work.phone = workData.phone || null;
     work.payment = workData.payment;
-    work.companyId = workData.companyId;
+    work.startTime = workData.startTime;
+    work.endTime = workData.endTime;
+    work.countWorkers = workData.countWorkers;
+    work.address = workData.address;
     work.categoryId = workData.categoryId;
     work.cityId = workData.cityId;
-    const date = new Date();
-    date.setDate(date.getDate() + this.expirationDays);
-    work.expireAt = date.getTime();
 
     return work;
   }

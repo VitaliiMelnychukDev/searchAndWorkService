@@ -19,7 +19,7 @@ import { PaginationDto, SearchDto } from '../dtos/base/pagination.dto';
 import { WorkService } from '../services/work.service';
 import { WorkDto } from '../dtos/work/work.dto';
 import { Work } from '../entities/Work';
-import { SearchWork } from '../types/work';
+import { SearchWork, Worker } from '../types/work';
 import { WorkMessage } from '../types/message';
 
 @Controller('work')
@@ -28,7 +28,7 @@ export class WorkController {
 
   @Post('')
   @AuthNeeded()
-  @Roles(AccountRole.Company)
+  @Roles(AccountRole.User)
   async create(
     @Body(new ValidationPipe()) workData: WorkDto,
     @Req() request: IAuthorizedRequest,
@@ -43,7 +43,7 @@ export class WorkController {
 
   @Put(':id')
   @AuthNeeded()
-  @Roles(AccountRole.Company)
+  @Roles(AccountRole.User)
   async update(
     @Body(new ValidationPipe()) workData: WorkDto,
     @Param('id') id: number,
@@ -54,6 +54,20 @@ export class WorkController {
     return {
       success: true,
       data: work,
+    };
+  }
+
+  @Get('search-workers/:id')
+  @AuthNeeded()
+  async searchWorkers(
+    @Param('id') id: number,
+    @Req() request: IAuthorizedRequest,
+  ): Promise<IResponse<Worker[]>> {
+    const workers = await this.workService.searchWorkers(id, request.account);
+
+    return {
+      success: true,
+      data: workers,
     };
   }
 
@@ -72,7 +86,7 @@ export class WorkController {
 
   @Get('getAccountWorks')
   @AuthNeeded()
-  @Roles(AccountRole.Company)
+  @Roles(AccountRole.User)
   async getAccountWorks(
     @Query(new ValidationPipe()) paginationData: PaginationDto,
     @Req() request: IAuthorizedRequest,
@@ -100,7 +114,7 @@ export class WorkController {
 
   @Delete(':id')
   @AuthNeeded()
-  @Roles(AccountRole.Company)
+  @Roles(AccountRole.User)
   async remove(
     @Param('id') id: number,
     @Req() request: IAuthorizedRequest,

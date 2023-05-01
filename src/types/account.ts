@@ -1,39 +1,29 @@
+import { Account } from '../entities/Account';
+
 export enum AccountRole {
   Admin = 'admin',
   User = 'user',
-  Company = 'company',
 }
 
 export const accountRoles: AccountRole[] = [
   AccountRole.Admin,
-  AccountRole.Company,
   AccountRole.User,
 ];
 
-export interface IUpdateAccount {
-  email?: string;
-
-  name?: string;
-
-  password?: string;
-
-  role?: AccountRole;
-
-  active?: boolean;
+export enum AccountHourType {
+  Available = 'available',
+  Exception = 'exception',
 }
 
-export interface IAccount {
-  id: number;
+export const accountHourTypes: AccountHourType[] = [
+  AccountHourType.Available,
+  AccountHourType.Exception,
+];
 
-  email: string;
-
-  name: string;
-
-  role: AccountRole;
-
-  active: boolean;
-}
+export const defaultAccountHourType = AccountHourType.Available;
 
 export const defaultRole: AccountRole = AccountRole.User;
 
 export const rolesDecoratorKey = 'roles';
+
+export type AccountWithoutPassword = Omit<Account, 'password'>;

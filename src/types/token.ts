@@ -10,6 +10,9 @@ export type ITokenPayload = {
   email: string;
   role: AccountRole;
   name: string;
+  cityId: number;
+  address: string;
+  imageSrc: string;
 };
 
 export type ILogin = ITokens & {

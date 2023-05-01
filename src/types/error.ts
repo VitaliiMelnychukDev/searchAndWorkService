@@ -6,6 +6,7 @@ export enum AccountError {
   AccountNotFound = 'AccountNotFound',
   GetAccountsFail = 'GetAccountsFail',
   SendAccountRegisteredEventFail = 'SendAccountRegisteredEventFail',
+  CityDoesNotExist = 'CityDoesNotExist',
 }
 
 export enum AuthError {
@@ -48,8 +49,34 @@ export enum WorkError {
   CategoryDoesNotExist = 'CategoryDoesNotExist',
   WorkErrorOccurred = 'WorkErrorOccurred',
   DeleteWorkFail = 'DeleteWorkFail',
+  SaveWorkFail = 'SaveWorkFail',
+  SearchWorkersFail = 'SearchWorkersFail',
+}
+
+export enum AccountWorkError {
+  SendPropositionFail = 'SendPropositionFail',
+  RejectFail = 'RejectFail',
+  ApproveFail = 'ApproveFail',
 }
 
 export enum TokenError {
   TokenIsNotValid = 'TokenIsNotValid',
+}
+
+export enum AccountWorkCategoryError {
+  AccountCategoryDidNotFound = 'AccountCategoryDidNotFound',
+  CategoryDidNotFound = 'CategoryDidNotFound',
+  CreateAccountCategoryFail = 'CreateAccountCategoryFail',
+  GetAccountCategoriesFail = 'GetAccountCategoriesFail',
+  DeleteAccountCategoryFail = 'DeleteAccountCategoryFail',
+  UpdateAccountCategoryFail = 'UpdateAccountCategoryFail',
+}
+
+export enum AccountHourError {
+  SaveAccountHourFail = 'SaveAccountHourFail',
+  AccountHourDidNotFound = 'AccountHourDidNotFound',
+  CreateAccountHourFail = 'CreateAccountHourFail',
+  GetAccountHourFail = 'GetAccountHourFail',
+  DeleteAccountHourFail = 'DeleteAccountHourFail',
+  UpdateAccountHourFail = 'UpdateAccountHourFail',
 }

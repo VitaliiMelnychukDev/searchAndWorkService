@@ -1,13 +1,13 @@
 import { RegisterDto } from '../dtos/auth/register.dto';
 import { Account } from '../entities/Account';
-import { AccountRole, IAccount } from '../types/account';
+import { AccountRole } from '../types/account';
 import { HashService } from './hash.service';
 import { AccountError } from '../types/error';
-import { SearchDto } from '../dtos/account/search.dto';
-import { FindOptionsWhere, Like, Repository } from 'typeorm';
+import { Repository } from 'typeorm';
 import { PaginationService } from './pagination.service';
 import { BadRequestException, Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
+import { City } from '../entities/City';
 
 @Injectable()
 export class AccountService {
@@ -16,6 +16,8 @@ export class AccountService {
     private paginationService: PaginationService,
     @InjectRepository(Account)
     private readonly accountRepository: Repository<Account>,
+    @InjectRepository(City)
+    private readonly cityRepository: Repository<City>,
   ) {}
 
   async create(account: RegisterDto): Promise<void> {
@@ -28,55 +30,32 @@ export class AccountService {
       throw new BadRequestException(AccountError.AccountEmailExists);
     }
 
+    let city: City | null = null;
+
+    try {
+      city = await this.cityRepository.findOne({
+        where: { id: account.cityId },
+      });
+    } catch {
+      throw new BadRequestException(AccountError.CreateAccountFail);
+    }
+
+    if (!city) {
+      throw new BadRequestException(AccountError.CityDoesNotExist);
+    }
+
     const newAccount = new Account();
     newAccount.role = account.role || AccountRole.User;
     newAccount.email = account.email;
     newAccount.name = account.name;
     newAccount.phone = account.phone;
     newAccount.active = false;
+    newAccount.cityId = account.cityId;
+    newAccount.imageSrc = account.imageSrc || null;
+    newAccount.address = account.address;
     newAccount.password = await this.hashService.hashString(account.password);
 
     await this.saveAccount(newAccount, AccountError.CreateAccountFail);
-  }
-
-  async getAccounts(searchParams: SearchDto): Promise<IAccount[]> {
-    const sharedWhereOptions: FindOptionsWhere<Account> = {};
-    if (searchParams.role) {
-      sharedWhereOptions.role = searchParams.role;
-    }
-
-    let whereOptions: FindOptionsWhere<Account> | FindOptionsWhere<Account>[] =
-      {};
-    if (!searchParams.searchTerm) {
-      whereOptions = sharedWhereOptions;
-    } else {
-      whereOptions = [
-        {
-          email: Like(`%${searchParams.searchTerm}%`),
-          ...sharedWhereOptions,
-        },
-        {
-          name: Like(`%${searchParams.searchTerm}%`),
-          ...sharedWhereOptions,
-        },
-      ];
-    }
-
-    try {
-      return await this.accountRepository.find({
-        ...this.paginationService.getPaginationParams(searchParams),
-        where: whereOptions,
-        select: {
-          email: true,
-          name: true,
-          role: true,
-          active: true,
-          id: true,
-        },
-      });
-    } catch {
-      throw new BadRequestException(AccountError.GetAccountsFail);
-    }
   }
 
   private async getAccount(

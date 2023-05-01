@@ -101,6 +101,9 @@ export class AuthService {
       email: account.email,
       name: account.name,
       role: account.role,
+      cityId: account.cityId,
+      address: account.address,
+      imageSrc: account.imageSrc,
     });
 
     return {

@@ -1,19 +1,28 @@
-import { MigrationInterface, QueryRunner, Table, TableIndex } from 'typeorm';
+import {
+  MigrationInterface,
+  QueryRunner,
+  Table,
+  TableForeignKey,
+  TableIndex,
+} from 'typeorm';
 import { AccountRole, accountRoles } from '../types/account';
 import { HashService } from '../services/hash.service';
 import { Account } from '../entities/Account';
+import { City1682777978678 } from './1682777978678-City';
 
-export class Account1681997490311 implements MigrationInterface {
+export class Account1682778152102 implements MigrationInterface {
   public static tableName = 'accounts';
-  public static emailIndex = `index_${Account1681997490311.tableName}_email`;
-  public static roleIndex = `index_${Account1681997490311.tableName}_role`;
+  public static emailIndex = `index_${Account1682778152102.tableName}_email`;
+  public static roleIndex = `index_${Account1682778152102.tableName}_role`;
+  public static cityIdForeignKey = `foreign_key_${Account1682778152102.tableName}_cityId`;
   public async up(queryRunner: QueryRunner): Promise<void> {
     const emailColumn = 'email';
     const roleColumn = 'role';
+    const cityIdColumn = 'cityId';
 
     await queryRunner.createTable(
       new Table({
-        name: Account1681997490311.tableName,
+        name: Account1682778152102.tableName,
         columns: [
           {
             name: 'id',
@@ -45,6 +54,22 @@ export class Account1681997490311 implements MigrationInterface {
             length: '256',
           },
           {
+            name: 'imageSrc',
+            type: 'varchar',
+            length: '256',
+            isNullable: true,
+          },
+          {
+            name: cityIdColumn,
+            type: 'int',
+            isNullable: true,
+          },
+          {
+            name: 'address',
+            type: 'varchar',
+            length: '256',
+          },
+          {
             name: roleColumn,
             type: 'enum',
             enum: accountRoles,
@@ -59,18 +84,31 @@ export class Account1681997490311 implements MigrationInterface {
     );
 
     const emailIndex = new TableIndex({
-      name: Account1681997490311.emailIndex,
+      name: Account1682778152102.emailIndex,
       columnNames: [emailColumn],
     });
 
-    await queryRunner.createIndex(Account1681997490311.tableName, emailIndex);
+    await queryRunner.createIndex(Account1682778152102.tableName, emailIndex);
 
     const roleIndex = new TableIndex({
-      name: Account1681997490311.roleIndex,
+      name: Account1682778152102.roleIndex,
       columnNames: [roleColumn],
     });
 
-    await queryRunner.createIndex(Account1681997490311.tableName, roleIndex);
+    await queryRunner.createIndex(Account1682778152102.tableName, roleIndex);
+
+    const cityIdForeignKey = new TableForeignKey({
+      name: Account1682778152102.cityIdForeignKey,
+      columnNames: [cityIdColumn],
+      referencedColumnNames: ['id'],
+      referencedTableName: City1682777978678.tableName,
+      onDelete: 'RESTRICT',
+    });
+
+    await queryRunner.createForeignKey(
+      Account1682778152102.tableName,
+      cityIdForeignKey,
+    );
 
     const hashService = new HashService();
     const accountRepository = queryRunner.manager.getRepository(Account);
@@ -80,19 +118,24 @@ export class Account1681997490311 implements MigrationInterface {
     defaultAdmin.password = await hashService.hashString('test1234');
     defaultAdmin.role = AccountRole.Admin;
     defaultAdmin.active = true;
+    defaultAdmin.address = 'Sadova 0000';
 
     await accountRepository.save(defaultAdmin);
   }
 
   public async down(queryRunner: QueryRunner): Promise<void> {
-    await queryRunner.dropIndex(
-      Account1681997490311.tableName,
-      Account1681997490311.roleIndex,
+    await queryRunner.dropForeignKey(
+      Account1682778152102.tableName,
+      Account1682778152102.cityIdForeignKey,
     );
     await queryRunner.dropIndex(
-      Account1681997490311.tableName,
-      Account1681997490311.emailIndex,
+      Account1682778152102.tableName,
+      Account1682778152102.roleIndex,
     );
-    await queryRunner.dropTable(Account1681997490311.tableName);
+    await queryRunner.dropIndex(
+      Account1682778152102.tableName,
+      Account1682778152102.emailIndex,
+    );
+    await queryRunner.dropTable(Account1682778152102.tableName);
   }
 }

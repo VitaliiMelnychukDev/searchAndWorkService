@@ -4,24 +4,24 @@ import {
   Table,
   TableForeignKey,
 } from 'typeorm';
-import { Company1682002983656 } from './1682002983656-Company';
-import { Category1682002531140 } from './1682002531140-Category';
-import { City1682002849806 } from './1682002849806-City';
+import { Account1682778152102 } from './1682778152102-Account';
+import { Category1682778069019 } from './1682778069019-Category';
+import { City1682777978678 } from './1682777978678-City';
 
-export class Work1682003435468 implements MigrationInterface {
+export class Work1682780352184 implements MigrationInterface {
   public static tableName = 'works';
-  public static companyIdForeignKey = `foreign_key_${Work1682003435468.tableName}_companyId`;
-  public static categoryIdForeignKey = `foreign_key_${Work1682003435468.tableName}_categoryId`;
-  public static cityIdForeignKey = `foreign_key_${Work1682003435468.tableName}_cityId`;
+  public static accountIdForeignKey = `foreign_key_${Work1682780352184.tableName}_accountId`;
+  public static categoryIdForeignKey = `foreign_key_${Work1682780352184.tableName}_categoryId`;
+  public static cityIdForeignKey = `foreign_key_${Work1682780352184.tableName}_cityId`;
 
   public async up(queryRunner: QueryRunner): Promise<void> {
-    const companyIdColumn = 'companyId';
+    const accountIdColumn = 'accountId';
     const categoryIdColumn = 'categoryId';
     const cityIdColumn = 'cityId';
 
     await queryRunner.createTable(
       new Table({
-        name: Work1682003435468.tableName,
+        name: Work1682780352184.tableName,
         columns: [
           {
             name: 'id',
@@ -31,7 +31,7 @@ export class Work1682003435468 implements MigrationInterface {
             generationStrategy: 'increment',
           },
           {
-            name: companyIdColumn,
+            name: accountIdColumn,
             type: 'int',
           },
           {
@@ -41,6 +41,11 @@ export class Work1682003435468 implements MigrationInterface {
           {
             name: cityIdColumn,
             type: 'int',
+          },
+          {
+            name: 'address',
+            type: 'varchar',
+            length: '256',
           },
           {
             name: 'payment',
@@ -72,8 +77,16 @@ export class Work1682003435468 implements MigrationInterface {
             type: 'bigInt',
           },
           {
-            name: 'expireAt',
+            name: 'startTime',
             type: 'bigInt',
+          },
+          {
+            name: 'endTime',
+            type: 'bigInt',
+          },
+          {
+            name: 'countWorkers',
+            type: 'int',
           },
           {
             name: 'blocked',
@@ -94,59 +107,59 @@ export class Work1682003435468 implements MigrationInterface {
       }),
     );
 
-    const companyIdForeignKey = new TableForeignKey({
-      name: Work1682003435468.companyIdForeignKey,
-      columnNames: [companyIdColumn],
+    const accountIdForeignKey = new TableForeignKey({
+      name: Work1682780352184.accountIdForeignKey,
+      columnNames: [accountIdColumn],
       referencedColumnNames: ['id'],
-      referencedTableName: Company1682002983656.tableName,
-      onDelete: 'CASCADE',
+      referencedTableName: Account1682778152102.tableName,
+      onDelete: 'RESTRICT',
     });
 
     await queryRunner.createForeignKey(
-      Work1682003435468.tableName,
-      companyIdForeignKey,
+      Work1682780352184.tableName,
+      accountIdForeignKey,
     );
 
     const categoryIdForeignKey = new TableForeignKey({
-      name: Work1682003435468.categoryIdForeignKey,
+      name: Work1682780352184.categoryIdForeignKey,
       columnNames: [categoryIdColumn],
       referencedColumnNames: ['id'],
-      referencedTableName: Category1682002531140.tableName,
-      onDelete: 'CASCADE',
+      referencedTableName: Category1682778069019.tableName,
+      onDelete: 'RESTRICT',
     });
 
     await queryRunner.createForeignKey(
-      Work1682003435468.tableName,
+      Work1682780352184.tableName,
       categoryIdForeignKey,
     );
 
     const cityIdForeignKey = new TableForeignKey({
-      name: Work1682003435468.cityIdForeignKey,
+      name: Work1682780352184.cityIdForeignKey,
       columnNames: [cityIdColumn],
       referencedColumnNames: ['id'],
-      referencedTableName: City1682002849806.tableName,
-      onDelete: 'CASCADE',
+      referencedTableName: City1682777978678.tableName,
+      onDelete: 'RESTRICT',
     });
 
     await queryRunner.createForeignKey(
-      Work1682003435468.tableName,
+      Work1682780352184.tableName,
       cityIdForeignKey,
     );
   }
 
   public async down(queryRunner: QueryRunner): Promise<void> {
     await queryRunner.dropForeignKey(
-      Work1682003435468.tableName,
-      Work1682003435468.cityIdForeignKey,
+      Work1682780352184.tableName,
+      Work1682780352184.cityIdForeignKey,
     );
     await queryRunner.dropForeignKey(
-      Work1682003435468.tableName,
-      Work1682003435468.categoryIdForeignKey,
+      Work1682780352184.tableName,
+      Work1682780352184.categoryIdForeignKey,
     );
     await queryRunner.dropForeignKey(
-      Work1682003435468.tableName,
-      Work1682003435468.companyIdForeignKey,
+      Work1682780352184.tableName,
+      Work1682780352184.accountIdForeignKey,
     );
-    await queryRunner.dropTable(Work1682003435468.tableName);
+    await queryRunner.dropTable(Work1682780352184.tableName);
   }
 }
