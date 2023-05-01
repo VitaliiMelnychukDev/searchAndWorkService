@@ -65,6 +65,7 @@ export class AccountWorkCategoryService {
         where: {
           accountId,
         },
+        relations: ['category'],
       });
     } catch {
       throw new BadRequestException(
@@ -121,6 +122,7 @@ export class AccountWorkCategoryService {
           accountId,
           categoryId,
         },
+        relations: ['category'],
       });
     } catch {
       throw new BadRequestException(

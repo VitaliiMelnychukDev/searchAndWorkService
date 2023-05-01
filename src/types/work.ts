@@ -6,6 +6,7 @@ export type SearchWork = {
 };
 
 export type Worker = {
+  id: number;
   email: string;
   phone: string | null;
   name: string;

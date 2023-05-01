@@ -47,6 +47,7 @@ export class WorkService {
       const workers: Worker[] = await this.accountRepository
         .createQueryBuilder('account')
         .select('account.phone', 'phone')
+        .addSelect('account.id', 'id')
         .addSelect('account.email', 'email')
         .addSelect('account.name', 'name')
         .addSelect('workCategories.description', 'categoryDescription')
