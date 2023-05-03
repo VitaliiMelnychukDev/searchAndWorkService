@@ -51,8 +51,23 @@ export class WorkService {
         .addSelect('account.email', 'email')
         .addSelect('account.name', 'name')
         .addSelect('workCategories.description', 'categoryDescription')
-        .innerJoin('account.workCategories', 'workCategories')
-        .innerJoin('account.hours', 'hours')
+        .addSelect('category.title', 'categoryName')
+        .addSelect('accountWorks.workId', 'workId')
+        .addSelect('city.title', 'cityName')
+        .addSelect('hours.startTime', 'startTime')
+        .addSelect('hours.endTime', 'endTime')
+        .leftJoin('account.workCategories', 'workCategories')
+        .leftJoin('workCategories.category', 'category')
+        .leftJoin('account.hours', 'hours')
+        .leftJoin('account.city', 'city')
+        .leftJoin(
+          'account.accountWorks',
+          'accountWorks',
+          'accountWorks.workId = :workId',
+          {
+            workId: work.id,
+          },
+        )
         .where('workCategories.categoryId = :workCategoryId', {
           workCategoryId: work.categoryId,
         })
@@ -68,13 +83,19 @@ export class WorkService {
         .andWhere('hours.endTime >= :workEndTime', {
           workEndTime: work.endTime,
         })
+        .andWhere('hours.startTime >= :nowTime', {
+          nowTime: new Date().getTime(),
+        })
+        .andWhere('hours.type = :hourType', {
+          hourType: AccountHourType.Available,
+        })
         .andWhere('hours.type = :hourType', {
           hourType: AccountHourType.Available,
         })
         .execute();
 
       return workers;
-    } catch {
+    } catch (e) {
       throw new BadRequestException(WorkError.SearchWorkersFail);
     }
   }

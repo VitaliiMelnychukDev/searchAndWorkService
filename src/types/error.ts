@@ -55,8 +55,10 @@ export enum WorkError {
 
 export enum AccountWorkError {
   SendPropositionFail = 'SendPropositionFail',
-  RejectFail = 'RejectFail',
-  ApproveFail = 'ApproveFail',
+  SearchWorkWorkersFail = 'SearchWorkWorkersFail',
+  SearchAccountWorksFail = 'SearchAccountWorksFail',
+  AccountWorkDoesNotExists = 'AccountWorkDoesNotExists',
+  SetAccountWorkStatusFail = 'SetAccountWorkStatusFail',
 }
 
 export enum TokenError {

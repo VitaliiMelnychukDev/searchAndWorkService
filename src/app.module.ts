@@ -29,6 +29,8 @@ import { AccountWorkCategoryController } from './controllers/account-work-catego
 import { AccountWorkCategoryService } from './services/account-work-category.service';
 import { AccountHourController } from './controllers/account-hour.controller';
 import { AccountHourService } from './services/account-hour.service';
+import { AccountWorkController } from './controllers/account-work.controller';
+import { AccountWorkService } from './services/account-work.service';
 
 @Module({
   imports: [
@@ -52,6 +54,7 @@ import { AccountHourService } from './services/account-hour.service';
     AccountController,
     AccountWorkCategoryController,
     AccountHourController,
+    AccountWorkController,
   ],
   providers: [
     {
@@ -72,6 +75,7 @@ import { AccountHourService } from './services/account-hour.service';
     WorkService,
     AccountWorkCategoryService,
     AccountHourService,
+    AccountWorkService,
   ],
 })
 export class AppModule {}

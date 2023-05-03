@@ -11,4 +11,9 @@ export type Worker = {
   phone: string | null;
   name: string;
   categoryDescription: string;
+  categoryName: string;
+  cityName: string;
+  startTime: number;
+  endTime: number;
+  workId: number | null;
 };
